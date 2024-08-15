@@ -105,7 +105,9 @@ export const UPDATE_ADDRESS = `
 
 export const DELETE_ADDRESS = `
     mutation DeleteAddress($id: ID!) {
-        deleteAddress(id: $id)
+        deleteAddress(id: $id) {
+            id
+        }
     }
 `;
 
@@ -154,7 +156,9 @@ export const UPDATE_CONTACT = `
 
 export const DELETE_CONTACT = `
     mutation DeleteContact($id: ID!) {
-        deleteContact(id: $id)
+        deleteContact(id: $id) {
+            id
+        }
     }
 `;
 

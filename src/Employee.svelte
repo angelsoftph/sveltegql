@@ -77,22 +77,22 @@
     }
 
     async function updateEmployee() {
-        // toast('Event has been created', {
-	    //     duration: 10000
-        // });
         employee.id = id;
         await client.request(UPDATE_EMPLOYEE, employee);
-
-
+        addToast({ message: "Employee record has been updated", type: "success", dismissible: true, timeout: 1000 });
 
         if (showNewAddressForm) {
             await addAddress();
+            addToast({ message: "New address has been added", type: "success", dismissible: true, timeout: 1000 });
         }
         if (showNewContactForm) {
             await addContact();
+            addToast({ message: "New contact has been added", type: "success", dismissible: true, timeout: 1000 });
         }
 
-        fetchEmployee();
+        await fetchEmployee();
+        await fetchAddresses();
+        await fetchContacts();
     }
 
     async function deleteEmployee() {
@@ -131,11 +131,7 @@
         await client.request(SET_PRIMARY_ADDRESS, { id: address_id, employee_id: employee_id });
         await fetchAddresses();
 
-        let message = "Primary address has been changed";
-        let type = "success";
-        let dismissible = true;
-        let timeout = 1000;
-        addToast({ message, type: "success", dismissible, timeout });
+        addToast({ message: "Primary address has been changed", type: "success", dismissible: true, timeout: 1000 });
     }
 
     async function setPrimaryContact(contact_id) {
@@ -143,11 +139,21 @@
         await client.request(SET_PRIMARY_CONTACT, { id: contact_id, employee_id: employee_id });
         await fetchContacts();
 
-        let message = "Primary contact has been changed";
-        let type = "success";
-        let dismissible = true;
-        let timeout = 1000;
-        addToast({ message, type: "success", dismissible, timeout });
+        addToast({ message: "Primary contact has been changed", type: "success", dismissible: true, timeout: 1000 });
+    }
+
+    async function deleteAddress(address_id) {
+        await client.request(DELETE_ADDRESS, { id: address_id });
+        await fetchAddresses();
+
+        addToast({ message: "Selected address has been deleted", type: "success", dismissible: true, timeout: 1000 });
+    }
+
+    async function deleteContact(contact_id) {
+        await client.request(DELETE_CONTACT, { id: contact_id });
+        await fetchContacts();
+
+        addToast({ message: "Selected contact has been deleted", type: "success", dismissible: true, timeout: 1000 });
     }
 
     let selectedGender = { value: 'M', label: 'Male'  }
@@ -313,7 +319,9 @@
                                         />
                                     </div>
                                     <div class="delete-contact" title="Delete Contact">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                        <Button variant="ghost" on:click={() => deleteContact(contact.id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                        </Button>
                                     </div>
                                 </div>
                             {/each}
