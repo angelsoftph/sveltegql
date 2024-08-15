@@ -1,15 +1,12 @@
 <script>
-    import { Router, Link, Route } from 'svelte-routing';
+    import { Link } from 'svelte-routing';
     import { client } from './lib/graphql-client.js';
     import { GET_EMPLOYEES, CREATE_EMPLOYEE, UPDATE_EMPLOYEE, DELETE_EMPLOYEE } from './lib/queries.js';
   
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
-    import * as Form from "$lib/components/ui/form";
-    import * as Popover from "$lib/components/ui/popover/index.js";
     import * as Table from "$lib/components/ui/table";
     import { Button } from "$lib/components/ui/button";
     
-    import Employee from './Employee.svelte';
     import "./app.css";
 
     let employees = [];
@@ -22,7 +19,6 @@
         cstatus: '',
         position: '',
         datehired: '',
-        age: 0,
         tenure: ''
     };
 
@@ -41,7 +37,6 @@
             cstatus: 'S',
             position: 'Developer',
             datehired: '2024-01-01',
-            age: 34,
             tenure: '6m'
         };
         await client.request(CREATE_EMPLOYEE, newEmployee);
@@ -55,7 +50,6 @@
             cstatus: '',
             position: '',
             datehired: '',
-            age: 0,
             tenure: ''
         };
 
@@ -66,14 +60,14 @@
         await client.request(DELETE_EMPLOYEE, { id });
         fetchEmployees();
     }
-  
+
     fetchEmployees();
 </script>
 
 <main>
     <div class="container py-5">
         <div class="flex flex-col items-start">
-            <h1 class="text-3xl text-emerald-700">LegalMatch&reg;</h1>
+            <h1 class="text-3xl text-emerald-700">Svelte Demo</h1>
         </div>
         <div class="flex flex-col mt-10 gap-5">
             <div class="flex flex-row justify-between">
@@ -100,8 +94,8 @@
                         {#each employees as employee}
                             <Table.Row>
                                 <Table.Cell class="font-medium">{employee.fname} {employee.lname}</Table.Cell>
-                                <Table.Cell>{employee.street}, {employee.city}</Table.Cell>
-                                <Table.Cell>{employee.contact}</Table.Cell>
+                                <Table.Cell>{employee.street !== null ? employee.street : ''} {employee.city !== null ? employee.city : ''}</Table.Cell>
+                                <Table.Cell>{employee.contact !== null ? employee.contact: ''}</Table.Cell>
                                 <Table.Cell class="text-right">{employee.age}</Table.Cell>
                                 <Table.Cell>{employee.tenure}</Table.Cell>
                                 <Table.Cell>

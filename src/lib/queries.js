@@ -24,15 +24,14 @@ export const GET_EMPLOYEE = `
             cstatus
             position
             datehired
-            age
             tenure
         }
     }
 `;
 
 export const CREATE_EMPLOYEE = `
-    mutation CreateEmployee($fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!, $age: Int!, $tenure: String!) {
-        createEmployee(fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired, age: $age, tenure: $tenure) {
+    mutation CreateEmployee($fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!, $tenure: String!) {
+        createEmployee(fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired, tenure: $tenure) {
             id
             fname
             lname
@@ -42,15 +41,14 @@ export const CREATE_EMPLOYEE = `
             cstatus
             position
             datehired
-            age
             tenure
         }
     }
 `;
 
 export const UPDATE_EMPLOYEE = `
-    mutation UpdateEmployee($id: ID!, $fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!, $age: Int!, $tenure: String!) {
-        updateEmployee(id: $id, fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired, age: $age, tenure: $tenure) {
+    mutation UpdateEmployee($id: ID!, $fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!, $tenure: String!) {
+        updateEmployee(id: $id, fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired, tenure: $tenure) {
             id
             fname
             lname
@@ -60,7 +58,6 @@ export const UPDATE_EMPLOYEE = `
             cstatus
             position
             datehired
-            age
             tenure
         }
     }
@@ -84,7 +81,7 @@ export const GET_ADDRESSES = `
 `;
 
 export const CREATE_ADDRESS = `
-    mutation CreateAddress($employee_id: Int!, $street: String!, $city: String!, $is_primary: Boolean!) {
+    mutation CreateAddress($employee_id: ID!, $street: String!, $city: String!, $is_primary: Int!) {
         createAddress(employee_id: $employee_id, street: $street, city: $city, is_primary: $is_primary) {
             id
             employee_id
@@ -96,7 +93,7 @@ export const CREATE_ADDRESS = `
 `;
 
 export const UPDATE_ADDRESS = `
-    mutation UpdateAddress($id: ID!, $street: String!, $city: String!, $is_primary: Boolean!) {
+    mutation UpdateAddress($id: ID!, $street: String!, $city: String!, $is_primary: Int!) {
         updateEmployee(id: $id, street: $street , city: $city, is_primary: $is_primary) {
             id
             street
@@ -112,6 +109,18 @@ export const DELETE_ADDRESS = `
     }
 `;
 
+export const SET_PRIMARY_ADDRESS = `
+    mutation SetPrimaryAddress($id: ID!, $employee_id: ID!) {
+        setPrimaryAddress(id: $id, employee_id: $employee_id) {
+            id
+            employee_id
+            street
+            city
+            is_primary
+        }
+    }
+`;
+
 export const GET_CONTACTS = `
     query getContacts($employee_id: ID!) {
         contacts(employee_id: $employee_id) {
@@ -123,7 +132,7 @@ export const GET_CONTACTS = `
 `;
 
 export const CREATE_CONTACT = `
-    mutation CreateContact($employee_id: Int!, $contact: String!, $is_primary: Boolean!) {
+    mutation CreateContact($employee_id: ID!, $contact: String!, $is_primary: Int!) {
         createContact(employee_id: $employee_id, contact: $contact, is_primary: $is_primary) {
             id
             employee_id
@@ -134,7 +143,7 @@ export const CREATE_CONTACT = `
 `;
 
 export const UPDATE_CONTACT = `
-    mutation UpdateContact($id: ID!, $contact: String!, $is_primary: Boolean!) {
+    mutation UpdateContact($id: ID!, $contact: String!, $is_primary: Int!) {
         updateEmployee(id: $id, contact: $contact, is_primary: $is_primary) {
             id
             contact
@@ -146,5 +155,16 @@ export const UPDATE_CONTACT = `
 export const DELETE_CONTACT = `
     mutation DeleteContact($id: ID!) {
         deleteContact(id: $id)
+    }
+`;
+
+export const SET_PRIMARY_CONTACT = `
+    mutation SetPrimaryContact($id: ID!, $employee_id: ID!) {
+        setPrimaryContact(id: $id, employee_id: $employee_id) {
+            id
+            employee_id
+            contact
+            is_primary
+        }
     }
 `;

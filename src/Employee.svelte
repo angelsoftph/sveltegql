@@ -1,19 +1,53 @@
 <script>
-    import { Link } from 'svelte-routing';
+    import { Link, navigate } from 'svelte-routing';
     import { client } from './lib/graphql-client.js';
     import { onMount } from 'svelte';
     
+    import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import * as Select from "$lib/components/ui/select";
     import Button from '$lib/components/ui/button/button.svelte';
     import { Input } from "$lib/components/ui/input";
     
-    import { GET_EMPLOYEE, UPDATE_EMPLOYEE, DELETE_EMPLOYEE, GET_ADDRESSES, GET_CONTACTS } from './lib/queries.js';
+    import Toasts from "./Toasts.svelte";
+    import { addToast } from "./store";
+        
+    import {
+        GET_EMPLOYEE,
+        UPDATE_EMPLOYEE,
+        DELETE_EMPLOYEE,
+        GET_ADDRESSES,
+        GET_CONTACTS,
+        CREATE_ADDRESS,
+        UPDATE_ADDRESS,
+        DELETE_ADDRESS,
+        SET_PRIMARY_ADDRESS,
+        CREATE_CONTACT,
+        UPDATE_CONTACT,
+        DELETE_CONTACT,
+        SET_PRIMARY_CONTACT
+    } from './lib/queries.js';
     import "./app.css";
-    
+        
     export let id;
     let employee = {};
     let addresses = [];
     let contacts = [];
+    let newAddress = {
+        employee_id: '',
+        street: '',
+        city: '',
+        is_primary: 0
+    }
+    let newContact = {
+        employee_id: '',
+        contact: '',
+        is_primary: 0
+    }
+    let editAddress = null;
+    let editContact = null;
+    let primaryAddress = null;
+    let primaryContact = null;
+
     let showNewAddressForm = false;
     let showNewContactForm = false;
 
@@ -24,8 +58,6 @@
     function handleNewContact() {
         showNewContactForm = true;
     }
-
-    console.log('id', id);
 
     async function fetchEmployee() {
         const data = await client.request(GET_EMPLOYEE, { id });
@@ -45,15 +77,77 @@
     }
 
     async function updateEmployee() {
+        // toast('Event has been created', {
+	    //     duration: 10000
+        // });
         employee.id = id;
         await client.request(UPDATE_EMPLOYEE, employee);
-        alert("Employee record updated");
-        fetchEmployee()
+
+
+
+        if (showNewAddressForm) {
+            await addAddress();
+        }
+        if (showNewContactForm) {
+            await addContact();
+        }
+
+        fetchEmployee();
     }
 
     async function deleteEmployee() {
         await client.request(DELETE_EMPLOYEE, { id });
-        alert("Employee record deleted");
+        navigate('/');
+    }
+
+    async function addContact() {
+        let employee_id = id;
+        newContact = {
+            ...newContact,
+            employee_id: employee_id,
+            // we have to make sure is_primary is a number, not a string
+            is_primary: Number(newContact.is_primary)
+        };
+        await client.request(CREATE_CONTACT, newContact);
+    }
+
+    async function addAddress() {
+        let employee_id = id;
+        newAddress = {
+            ...newAddress,
+            employee_id: employee_id,
+            // we have to make sure is_primary is a number, not a string
+            is_primary: Number(newAddress.is_primary)
+        };
+        await client.request(CREATE_ADDRESS, newAddress);
+    }
+
+    async function updateAddress(id) {
+        await client.request(CREATE_ADDRESS, editAddress);
+    }
+
+    async function setPrimaryAddress(address_id) {
+        let employee_id = id;
+        await client.request(SET_PRIMARY_ADDRESS, { id: address_id, employee_id: employee_id });
+        await fetchAddresses();
+
+        let message = "Primary address has been changed";
+        let type = "success";
+        let dismissible = true;
+        let timeout = 1000;
+        addToast({ message, type: "success", dismissible, timeout });
+    }
+
+    async function setPrimaryContact(contact_id) {
+        let employee_id = id;
+        await client.request(SET_PRIMARY_CONTACT, { id: contact_id, employee_id: employee_id });
+        await fetchContacts();
+
+        let message = "Primary contact has been changed";
+        let type = "success";
+        let dismissible = true;
+        let timeout = 1000;
+        addToast({ message, type: "success", dismissible, timeout });
     }
 
     let selectedGender = { value: 'M', label: 'Male'  }
@@ -90,11 +184,13 @@
         ];
     });
 </script>
-  
+
+<Toasts />
+
 <main>
     <div class="container py-5">
         <div class="flex flex-col items-start">
-            <h1 class="text-3xl text-emerald-700">LegalMatch&reg;</h1>
+            <h1 class="text-3xl text-emerald-700">Svelte Demo</h1>
         </div>
         <div class="flex flex-col mt-10">
             <div class="flex flex-row justify-between">
@@ -106,7 +202,23 @@
                         <Button on:click={updateEmployee}>Update</Button>
                     </div>
                     <div>
-                        <Button variant="destructive" on:click={deleteEmployee}>Delete</Button>
+                        <AlertDialog.Root>
+                            <AlertDialog.Trigger asChild let:builder>
+                                <Button builders={[builder]} variant="destructive">Delete</Button>
+                            </AlertDialog.Trigger>
+                            <AlertDialog.Content>
+                                <AlertDialog.Header>
+                                    <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+                                    <AlertDialog.Description>
+                                    This action cannot be undone. This will permanently delete the selected employee record.
+                                    </AlertDialog.Description>
+                                </AlertDialog.Header>
+                                <AlertDialog.Footer>
+                                    <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                                    <AlertDialog.Action variant="ghost" on:click={deleteEmployee}>Confirm</AlertDialog.Action>
+                                </AlertDialog.Footer>
+                            </AlertDialog.Content>
+                        </AlertDialog.Root>
                     </div>
                 </div>
             </div>
@@ -190,13 +302,14 @@
                             </div>
                             {#each contacts as contact}
                                 <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]"><Input name="contact" value={contact.contact} /></div>
+                                    <div class="w-[200px]"><Input name="contact" value={contact.contact} readonly={true} /></div>
                                     <div class="w-[30px]">
                                         <input
                                             type="checkbox"
                                             name="primary_contact"
                                             checked={contact.is_primary}
                                             value={contact.id}
+                                            on:click={() => setPrimaryContact(contact.id)}
                                         />
                                     </div>
                                     <div class="delete-contact" title="Delete Contact">
@@ -206,11 +319,12 @@
                             {/each}
                             {#if showNewContactForm}
                                 <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]"><Input name="contact" /></div>
+                                    <div class="w-[200px]"><Input name="contact" bind:value={newContact.contact} /></div>
                                     <div>
                                         <input
                                             type="checkbox"
                                             name="primary_address"
+                                            bind:value={newContact.is_primary}
                                         />
                                     </div>
                                 </div>
@@ -233,14 +347,15 @@
                             </div>
                             {#each addresses as address}
                                 <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]"><Input name="street" value={address.street} /></div>
-                                    <div class="w-[200px]"><Input name="city" value={address.city} /></div>
+                                    <div class="w-[200px]"><Input name="street" value={address.street} readonly={true} /></div>
+                                    <div class="w-[200px]"><Input name="city" value={address.city} readonly={true} /></div>
                                     <div class="w-[30px]">
                                         <input
                                             type="checkbox"
                                             name="primary_address"
                                             checked={address.is_primary}
                                             value={address.id}
+                                            on:click={() => setPrimaryAddress(address.id)}
                                         />
                                     </div>
                                     <div class="delete-address" title="Delete Address">
@@ -250,12 +365,13 @@
                             {/each}
                             {#if showNewAddressForm}
                                 <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]"><Input name="street" /></div>
-                                    <div class="w-[200px]"><Input name="city" /></div>
+                                    <div class="w-[200px]"><Input name="street" bind:value={newAddress.street} /></div>
+                                    <div class="w-[200px]"><Input name="city" bind:value={newAddress.city} /></div>
                                     <div>
                                         <input
                                             type="checkbox"
                                             name="primary_address"
+                                            bind:value={newAddress.is_primary}
                                         />
                                     </div>
                                 </div>
