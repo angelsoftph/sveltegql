@@ -3,7 +3,7 @@
     import { client } from './lib/graphql-client.js';
     import { onMount } from 'svelte';
     
-    import { GET_EMPLOYEES, DELETE_EMPLOYEE } from './lib/queries.js';
+    import { GET_EMPLOYEES, DELETE_EMPLOYEE, DELETE_EMPLOYEE_ADDRESSES, DELETE_EMPLOYEE_CONTACTS } from './lib/queries.js';
   
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import * as Table from "$lib/components/ui/table";
@@ -23,7 +23,12 @@
     }
 
     async function deleteEmployee(id) {
+        let employee_id = id;
         await client.request(DELETE_EMPLOYEE, { id });
+        await client.request(DELETE_EMPLOYEE_ADDRESSES, { employee_id });
+        await client.request(DELETE_EMPLOYEE_CONTACTS, { employee_id });
+
+        addToast({ message: "Employee record successfully deleted", type: "success", dismissible: true, timeout: 2000 });
         fetchEmployees();
     }
 

@@ -16,6 +16,8 @@
         CREATE_EMPLOYEE,
         UPDATE_EMPLOYEE,
         DELETE_EMPLOYEE,
+        DELETE_EMPLOYEE_ADDRESSES,
+        DELETE_EMPLOYEE_CONTACTS,
         GET_ADDRESSES,
         GET_CONTACTS,
         CREATE_ADDRESS,
@@ -154,7 +156,12 @@
     }
 
     async function deleteEmployee() {
+        let employee_id = id;
         await client.request(DELETE_EMPLOYEE, { id });
+        await client.request(DELETE_EMPLOYEE_ADDRESSES, { employee_id });
+        await client.request(DELETE_EMPLOYEE_CONTACTS, { employee_id });
+
+        addToast({ message: "Employee record successfully deleted", type: "success", dismissible: true, timeout: 2000 });
         navigate('/');
     }
 
@@ -249,8 +256,6 @@
                 await fetchAddresses();
                 await fetchContacts();
 
-                console.log('emp', employee);
-
                 if (employee.gender === 'F') {
                     selectedGender = { value: 'F', label: 'Female' }
                 } else {
@@ -267,11 +272,6 @@
             }
         }
     });
-
-
-    function redirect(arg0, arg1) {
-        throw new Error('Function not implemented.');
-    }
 </script>
 
 <Toasts />

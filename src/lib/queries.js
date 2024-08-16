@@ -66,6 +66,22 @@ export const DELETE_EMPLOYEE = `
     }
 `;
 
+export const DELETE_EMPLOYEE_ADDRESSES = `
+    mutation DeleteEmployeeAddresses($employee_id: ID!) {
+        deleteEmployeeAddresses(employee_id: $employee_id) {
+            success
+        }
+    }
+`;
+
+export const DELETE_EMPLOYEE_CONTACTS = `
+    mutation DeleteEmployeeContacts($employee_id: ID!) {
+        deleteEmployeeContacts(employee_id: $employee_id) {
+            success
+        }
+    }
+`;
+
 export const GET_ADDRESSES = `
     query getAddresses($employee_id: ID!) {
         addresses(employee_id: $employee_id) {
