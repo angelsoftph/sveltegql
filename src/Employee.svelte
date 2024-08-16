@@ -7,28 +7,27 @@
     import * as Select from "$lib/components/ui/select";
     import Button from '$lib/components/ui/button/button.svelte';
     import { Input } from "$lib/components/ui/input";
-    
+
     import Toasts from "./Toasts.svelte";
-    import { addToast } from "./store";
-        
+    import { addToast, decodeToken, decodedToken } from "./store";
+
     import {
         GET_EMPLOYEE,
+        CREATE_EMPLOYEE,
         UPDATE_EMPLOYEE,
         DELETE_EMPLOYEE,
         GET_ADDRESSES,
         GET_CONTACTS,
         CREATE_ADDRESS,
-        UPDATE_ADDRESS,
         DELETE_ADDRESS,
         SET_PRIMARY_ADDRESS,
         CREATE_CONTACT,
-        UPDATE_CONTACT,
         DELETE_CONTACT,
         SET_PRIMARY_CONTACT
     } from './lib/queries.js';
     import "./app.css";
-        
-    export let id;
+
+    export let id = null;
     let employee = {};
     let addresses = [];
     let contacts = [];
@@ -43,13 +42,9 @@
         contact: '',
         is_primary: 0
     }
-    let editAddress = null;
-    let editContact = null;
-    let primaryAddress = null;
-    let primaryContact = null;
-
     let showNewAddressForm = false;
     let showNewContactForm = false;
+    let userRole = '';
 
     function handleNewAddress() {
         showNewAddressForm = true;
@@ -61,7 +56,13 @@
 
     async function fetchEmployee() {
         const data = await client.request(GET_EMPLOYEE, { id });
-        employee = data.employee;
+
+        if (data && data.employee) {
+            employee = data.employee;
+        } else {
+            addToast({ message: "Employee record not found", type: "error", dismissible: true, timeout: 2000 });
+            navigate("/employees");
+        }
     }
 
     async function fetchAddresses() {
@@ -76,18 +77,75 @@
         contacts = data.contacts;
     }
 
+    async function createEmployee() {
+        employee = {
+            ...employee,
+            gender: selectedGender.value,
+            cstatus: selectedStatus.value
+        };
+
+        const result = await client.request(CREATE_EMPLOYEE, employee);
+        addToast({ message: "Employee record has been created", type: "success", dismissible: true, timeout: 2000 });
+
+        // get id of the newly created record
+        id = result.createEmployee.id;
+
+        if (showNewAddressForm && newAddress.street && newAddress.city) {
+            await addAddress();
+            addToast({ message: "New address has been added", type: "success", dismissible: true, timeout: 2000 });
+            showNewAddressForm = false;
+            newAddress = {
+                employee_id: '',
+                street: '',
+                city: '',
+                is_primary: 0
+            }
+            await fetchAddresses();
+        }
+        if (showNewContactForm && newContact.contact) {
+            await addContact();
+            addToast({ message: "New contact has been added", type: "success", dismissible: true, timeout: 2000 });
+            showNewContactForm = false;
+            newContact = {
+                employee_id: '',
+                contact: '',
+                is_primary: 0
+            }
+            await fetchContacts();
+        }
+    }
+
     async function updateEmployee() {
         employee.id = id;
-        await client.request(UPDATE_EMPLOYEE, employee);
-        addToast({ message: "Employee record has been updated", type: "success", dismissible: true, timeout: 1000 });
-
-        if (showNewAddressForm) {
-            await addAddress();
-            addToast({ message: "New address has been added", type: "success", dismissible: true, timeout: 1000 });
+        employee = {
+            ...employee,
+            gender: selectedGender.value,
+            cstatus: selectedStatus.value
         }
-        if (showNewContactForm) {
+
+        await client.request(UPDATE_EMPLOYEE, employee);
+        addToast({ message: "Employee record has been updated", type: "success", dismissible: true, timeout: 2000 });
+
+        if (showNewAddressForm && newAddress.street && newAddress.city) {
+            await addAddress();
+            addToast({ message: "New address has been added", type: "success", dismissible: true, timeout: 2000 });
+            showNewAddressForm = false;
+            newAddress = {
+                employee_id: '',
+                street: '',
+                city: '',
+                is_primary: 0
+            }
+        }
+        if (showNewContactForm && newContact.contact) {
             await addContact();
-            addToast({ message: "New contact has been added", type: "success", dismissible: true, timeout: 1000 });
+            addToast({ message: "New contact has been added", type: "success", dismissible: true, timeout: 2000 });
+            showNewContactForm = false;
+            newContact = {
+                employee_id: '',
+                contact: '',
+                is_primary: 0
+            }
         }
 
         await fetchEmployee();
@@ -106,7 +164,7 @@
             ...newContact,
             employee_id: employee_id,
             // we have to make sure is_primary is a number, not a string
-            is_primary: Number(newContact.is_primary)
+            is_primary: newContact.is_primary
         };
         await client.request(CREATE_CONTACT, newContact);
     }
@@ -122,16 +180,12 @@
         await client.request(CREATE_ADDRESS, newAddress);
     }
 
-    async function updateAddress(id) {
-        await client.request(CREATE_ADDRESS, editAddress);
-    }
-
     async function setPrimaryAddress(address_id) {
         let employee_id = id;
         await client.request(SET_PRIMARY_ADDRESS, { id: address_id, employee_id: employee_id });
         await fetchAddresses();
 
-        addToast({ message: "Primary address has been changed", type: "success", dismissible: true, timeout: 1000 });
+        addToast({ message: "Primary address has been changed", type: "success", dismissible: true, timeout: 2000 });
     }
 
     async function setPrimaryContact(contact_id) {
@@ -139,56 +193,85 @@
         await client.request(SET_PRIMARY_CONTACT, { id: contact_id, employee_id: employee_id });
         await fetchContacts();
 
-        addToast({ message: "Primary contact has been changed", type: "success", dismissible: true, timeout: 1000 });
+        addToast({ message: "Primary contact has been changed", type: "success", dismissible: true, timeout: 2000 });
     }
 
     async function deleteAddress(address_id) {
         await client.request(DELETE_ADDRESS, { id: address_id });
         await fetchAddresses();
 
-        addToast({ message: "Selected address has been deleted", type: "success", dismissible: true, timeout: 1000 });
+        addToast({ message: "Selected address has been deleted", type: "success", dismissible: true, timeout: 2000 });
     }
 
     async function deleteContact(contact_id) {
         await client.request(DELETE_CONTACT, { id: contact_id });
         await fetchContacts();
 
-        addToast({ message: "Selected contact has been deleted", type: "success", dismissible: true, timeout: 1000 });
+        addToast({ message: "Selected contact has been deleted", type: "success", dismissible: true, timeout: 2000 });
     }
 
-    let selectedGender = { value: 'M', label: 'Male'  }
+    async function handleLogout() {
+        try {
+            localStorage.removeItem('LM_AUTH_TOKEN');
+
+            addToast({ message: "You have successfully logged out", type: "success", dismissible: true, timeout: 2000 });
+            navigate('/');
+        } catch (err) {
+            addToast({ message: "Invalid credentials", type: "error", dismissible: true, timeout: 2000 });
+        }
+    }
+
+    let selectedGender = { value: 'M', label: 'Male' }
     let selectedStatus = { value: 'S', label: 'Single' }
-    let genderOptions = [];
-    let statusOptions = [];
+    let genderOptions = [
+        { value: "M", label: "Male" },
+        { value: "F", label: "Female" }
+    ];
+    let statusOptions = [
+        { value: "S", label: "Single" },
+        { value: "M", label: "Married" },
+        { value: "D", label: "Divorced" }
+    ];
 
     onMount(async () => {
-        await fetchEmployee();
-        await fetchAddresses();
-        await fetchContacts();
+        let auth_token = localStorage.getItem('LM_AUTH_TOKEN');
 
-        if (employee.gender === 'F') {
-            selectedGender = { value: 'F', label: 'Female' }
+        if (!auth_token) {
+            navigate("/");
+        } else {
+            decodeToken(auth_token);
+            if (decodedToken) {
+                userRole = decodedToken.role;
+            }
+
+            if (id) {
+                await fetchEmployee();
+                await fetchAddresses();
+                await fetchContacts();
+
+                console.log('emp', employee);
+
+                if (employee.gender === 'F') {
+                    selectedGender = { value: 'F', label: 'Female' }
+                } else {
+                    selectedGender = { value: 'M', label: 'Male' }
+                }
+                switch (employee.cstatus) {
+                    case 'M':
+                        selectedStatus = { value: 'M', label: 'Married' }
+                        break;
+                    case 'D':
+                        selectedStatus = { value: 'D', label: 'Divorced' }
+                        break;
+                }
+            }
         }
-        switch (employee.cstatus) {
-            case 'M':
-                selectedGender = { value: 'M', label: 'Married' }
-                break;
-            case 'D':
-                selectedGender = { value: 'D', label: 'Divorced' }
-                break;
-        }
-
-        genderOptions = [
-            { value: "M", label: "Male" },
-            { value: "F", label: "Female" }
-        ];
-
-        statusOptions = [
-            { value: "S", label: "Single" },
-            { value: "M", label: "Married" },
-            { value: "D", label: "Divorced" }
-        ];
     });
+
+
+    function redirect(arg0, arg1) {
+        throw new Error('Function not implemented.');
+    }
 </script>
 
 <Toasts />
@@ -196,7 +279,14 @@
 <main>
     <div class="container py-5">
         <div class="flex flex-col items-start">
-            <h1 class="text-3xl text-emerald-700">Svelte Demo</h1>
+            <div class="flex flex-row w-full justify-between">
+                <div class="flex">
+                    <h1 class="text-3xl text-emerald-700">Svelte Demo</h1>
+                </div>
+                <div class="flex">
+                    <Button variant="destructive" on:click={handleLogout}>Log Out</Button>
+                </div>
+            </div>
         </div>
         <div class="flex flex-col mt-10">
             <div class="flex flex-row justify-between">
@@ -204,28 +294,36 @@
                     <h3 class="text-xl">Employee Info</h3>
                 </div>
                 <div class="flex flex-row items-center gap-3">
-                    <div>
-                        <Button on:click={updateEmployee}>Update</Button>
-                    </div>
-                    <div>
-                        <AlertDialog.Root>
-                            <AlertDialog.Trigger asChild let:builder>
-                                <Button builders={[builder]} variant="destructive">Delete</Button>
-                            </AlertDialog.Trigger>
-                            <AlertDialog.Content>
-                                <AlertDialog.Header>
-                                    <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
-                                    <AlertDialog.Description>
-                                    This action cannot be undone. This will permanently delete the selected employee record.
-                                    </AlertDialog.Description>
-                                </AlertDialog.Header>
-                                <AlertDialog.Footer>
-                                    <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                                    <AlertDialog.Action variant="ghost" on:click={deleteEmployee}>Confirm</AlertDialog.Action>
-                                </AlertDialog.Footer>
-                            </AlertDialog.Content>
-                        </AlertDialog.Root>
-                    </div>
+                    {#if userRole === 'A'}
+                        <div>
+                            {#if id}
+                                <Button on:click={updateEmployee}>Update</Button>
+                            {:else}
+                                <Button on:click={createEmployee}>Create</Button>
+                            {/if}
+                        </div>
+                        {#if id}
+                            <div>
+                                <AlertDialog.Root>
+                                    <AlertDialog.Trigger asChild let:builder>
+                                        <Button builders={[builder]} variant="destructive">Delete</Button>
+                                    </AlertDialog.Trigger>
+                                    <AlertDialog.Content>
+                                        <AlertDialog.Header>
+                                            <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+                                            <AlertDialog.Description>
+                                            This action cannot be undone. This will permanently delete the selected employee record.
+                                            </AlertDialog.Description>
+                                        </AlertDialog.Header>
+                                        <AlertDialog.Footer>
+                                            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                                            <AlertDialog.Action variant="ghost" on:click={deleteEmployee}>Confirm</AlertDialog.Action>
+                                        </AlertDialog.Footer>
+                                    </AlertDialog.Content>
+                                </AlertDialog.Root>
+                            </div>
+                        {/if}
+                    {/if}
                 </div>
             </div>
             <hr class="mt-2 mb-5" />
@@ -234,61 +332,127 @@
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">First Name</div>
-                            <div><Input name="first_name" bind:value={employee.fname} /></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Input name="first_name" bind:value={employee.fname} />
+                                {:else}
+                                    <Input name="first_name" bind:value={employee.fname} readonly />
+                                {/if}
+                            </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Last Name</div>
-                            <div><Input name="last_name" bind:value={employee.lname} /></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Input name="last_name" bind:value={employee.lname} />
+                                {:else}
+                                    <Input name="last_name" bind:value={employee.lname} readonly />
+                                {/if}
+                            </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Middle Name</div>
-                            <div><Input name="middle_name" bind:value={employee.mname} /></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Input name="middle_name" bind:value={employee.mname} />
+                                {:else}
+                                    <Input name="middle_name" bind:value={employee.mname} readonly />
+                                {/if}
+                            </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Birth Date</div>
-                            <div><Input name="birth_date" bind:value={employee.bdate} placeholder="yyyy-mm-dd" /></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Input name="birth_date" bind:value={employee.bdate} placeholder="yyyy-mm-dd" />
+                                {:else}
+                                    <Input name="birth_date" bind:value={employee.bdate} placeholder="yyyy-mm-dd" readonly />
+                                {/if}
+                            </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Gender</div>
                             <div>
-                                <Select.Root portal={null} bind:selected={selectedGender}>
-                                    <Select.Trigger class="w-[216px]">
-                                        <Select.Value />
-                                    </Select.Trigger>
-                                    <Select.Content>
-                                        <Select.Group>
-                                            {#each genderOptions as option}
-                                                <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
-                                            {/each}
-                                        </Select.Group>
-                                    </Select.Content>
-                                </Select.Root>
+                                {#if userRole === 'A'}
+                                    <Select.Root portal={null} bind:selected={selectedGender}>
+                                        <Select.Trigger class="w-[216px]">
+                                            <Select.Value />
+                                        </Select.Trigger>
+                                        <Select.Content>
+                                            <Select.Group>
+                                                {#each genderOptions as option}
+                                                    <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                {/each}
+                                            </Select.Group>
+                                        </Select.Content>
+                                    </Select.Root>
+                                {:else}
+                                    <Select.Root portal={null} bind:selected={selectedGender} disabled>
+                                        <Select.Trigger class="w-[216px]">
+                                            <Select.Value />
+                                        </Select.Trigger>
+                                        <Select.Content>
+                                            <Select.Group>
+                                                {#each genderOptions as option}
+                                                    <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                {/each}
+                                            </Select.Group>
+                                        </Select.Content>
+                                    </Select.Root>
+                                {/if}
                             </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Marital Status</div>
                             <div>
-                                <Select.Root portal={null} bind:selected={selectedStatus}>
-                                    <Select.Trigger class="w-[216px]">
-                                        <Select.Value />
-                                    </Select.Trigger>
-                                    <Select.Content>
-                                        <Select.Group>
-                                            {#each statusOptions as option}
-                                                <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
-                                            {/each}
-                                        </Select.Group>
-                                    </Select.Content>
-                                </Select.Root>
+                                {#if userRole === 'A'}
+                                    <Select.Root portal={null} bind:selected={selectedStatus}>
+                                        <Select.Trigger class="w-[216px]">
+                                            <Select.Value />
+                                        </Select.Trigger>
+                                        <Select.Content>
+                                            <Select.Group>
+                                                {#each statusOptions as option}
+                                                    <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                {/each}
+                                            </Select.Group>
+                                        </Select.Content>
+                                    </Select.Root>
+                                {:else}
+                                    <Select.Root portal={null} bind:selected={selectedStatus} disabled>
+                                        <Select.Trigger class="w-[216px]">
+                                            <Select.Value />
+                                        </Select.Trigger>
+                                        <Select.Content>
+                                            <Select.Group>
+                                                {#each statusOptions as option}
+                                                    <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                {/each}
+                                            </Select.Group>
+                                        </Select.Content>
+                                    </Select.Root>
+                                {/if}
                             </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Position</div>
-                            <div><Input name="position" bind:value={employee.position} /></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Input name="position" bind:value={employee.position} />
+                                {:else}
+                                    <Input name="position" bind:value={employee.position} readonly />
+                                {/if}
+                            </div>
                         </div>
                         <div class="flex flex-row items-center gap-3">
                             <div class="w-1/3">Date Hired</div>
-                            <div><Input name="date_hired" bind:value={employee.datehired} /></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Input name="date_hired" bind:value={employee.datehired} />
+                                {:else}
+                                    <Input name="date_hired" bind:value={employee.datehired} readonly />
+                                {/if}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -296,7 +460,11 @@
                     <div class="flex flex-col">
                         <div class="flex flex-row items-center justify-between">
                             <div><h4>Contact Info</h4></div>
-                            <div><Button variant="ghost" id="btn-add-contact" title="Add contact" on:click={handleNewContact}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Button variant="ghost" id="btn-add-contact" title="Add contact" on:click={handleNewContact}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button>
+                                {/if}
+                            </div>
                         </div>
                         <div class="mt-3">
                             <hr />
@@ -304,37 +472,46 @@
                         <div class="flex flex-col mt-3 gap-2">
                             <div class="flex flex-row items-center gap-3">
                                 <div class="w-[200px]">Number</div>
-                                <div>Primary?</div>
+                                {#if id}
+                                    <div>Primary?</div>
+                                {/if}
                             </div>
                             {#each contacts as contact}
                                 <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]"><Input name="contact" value={contact.contact} readonly={true} /></div>
+                                    <div class="w-[200px]">
+                                        <Input name="contact" value={contact.contact} readonly={true} />
+                                    </div>
                                     <div class="w-[30px]">
-                                        <input
-                                            type="checkbox"
-                                            name="primary_contact"
-                                            checked={contact.is_primary}
-                                            value={contact.id}
-                                            on:click={() => setPrimaryContact(contact.id)}
-                                        />
+                                        {#if userRole === 'A'}
+                                            <input
+                                                type="checkbox"
+                                                name="primary_contact"
+                                                checked={contact.is_primary}
+                                                value={contact.id}
+                                                on:click={() => setPrimaryContact(contact.id)}
+                                            />
+                                        {:else}
+                                            <input
+                                                disabled
+                                                type="checkbox"
+                                                name="primary_contact"
+                                                checked={contact.is_primary}
+                                                value={contact.id}
+                                            />
+                                        {/if}
                                     </div>
-                                    <div class="delete-contact" title="Delete Contact">
-                                        <Button variant="ghost" on:click={() => deleteContact(contact.id)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-                                        </Button>
-                                    </div>
+                                    {#if userRole === 'A'}
+                                        <div class="delete-contact" title="Delete Contact">
+                                            <Button variant="ghost" on:click={() => deleteContact(contact.id)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                            </Button>
+                                        </div>
+                                    {/if}
                                 </div>
                             {/each}
                             {#if showNewContactForm}
                                 <div class="flex flex-row items-center gap-3">
                                     <div class="w-[200px]"><Input name="contact" bind:value={newContact.contact} /></div>
-                                    <div>
-                                        <input
-                                            type="checkbox"
-                                            name="primary_address"
-                                            bind:value={newContact.is_primary}
-                                        />
-                                    </div>
                                 </div>
                             {/if}
                         </div>
@@ -342,7 +519,11 @@
                     <div class="flex flex-col">
                         <div class="flex flex-row items-center justify-between">
                             <div><h4>Address Info</h4></div>
-                            <div><Button variant="ghost" id="btn-add-address" title="Add address" on:click={handleNewAddress}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button></div>
+                            <div>
+                                {#if userRole === 'A'}
+                                    <Button variant="ghost" id="btn-add-address" title="Add address" on:click={handleNewAddress}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button>
+                                {/if}
+                            </div>
                         </div>
                         <div class="mt-3">
                             <hr />
@@ -351,37 +532,47 @@
                             <div class="flex flex-row items-center gap-3">
                                 <div class="w-[200px]">Street</div>
                                 <div class="w-[200px]">City</div>
-                                <div>Primary?</div>
+                                {#if id}
+                                    <div>Primary?</div>
+                                {/if}
                             </div>
                             {#each addresses as address}
                                 <div class="flex flex-row items-center gap-3">
                                     <div class="w-[200px]"><Input name="street" value={address.street} readonly={true} /></div>
                                     <div class="w-[200px]"><Input name="city" value={address.city} readonly={true} /></div>
                                     <div class="w-[30px]">
-                                        <input
-                                            type="checkbox"
-                                            name="primary_address"
-                                            checked={address.is_primary}
-                                            value={address.id}
-                                            on:click={() => setPrimaryAddress(address.id)}
-                                        />
+                                        {#if userRole === 'A'}
+                                            <input
+                                                type="checkbox"
+                                                name="primary_address"
+                                                checked={address.is_primary}
+                                                value={address.id}
+                                                on:click={() => setPrimaryAddress(address.id)}
+                                            />
+                                        {:else}
+                                            <input
+                                                disabled
+                                                type="checkbox"
+                                                name="primary_address"
+                                                checked={address.is_primary}
+                                                value={address.id}
+                                                on:click={() => setPrimaryAddress(address.id)}
+                                            />
+                                        {/if}
                                     </div>
-                                    <div class="delete-address" title="Delete Address">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-                                    </div>
+                                    {#if userRole === 'A'}
+                                        <div class="delete-address" title="Delete Address">
+                                            <Button variant="ghost" on:click={() => deleteAddress(address.id)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                            </Button>
+                                        </div>
+                                    {/if}
                                 </div>
                             {/each}
                             {#if showNewAddressForm}
                                 <div class="flex flex-row items-center gap-3">
                                     <div class="w-[200px]"><Input name="street" bind:value={newAddress.street} /></div>
                                     <div class="w-[200px]"><Input name="city" bind:value={newAddress.city} /></div>
-                                    <div>
-                                        <input
-                                            type="checkbox"
-                                            name="primary_address"
-                                            bind:value={newAddress.is_primary}
-                                        />
-                                    </div>
                                 </div>
                             {/if}
                         </div>

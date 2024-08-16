@@ -1,73 +1,72 @@
 <script>
-    import { Link } from 'svelte-routing';
+    import { Link, navigate } from 'svelte-routing';
     import { client } from './lib/graphql-client.js';
-    import { GET_EMPLOYEES, CREATE_EMPLOYEE, UPDATE_EMPLOYEE, DELETE_EMPLOYEE } from './lib/queries.js';
+    import { onMount } from 'svelte';
+    
+    import { GET_EMPLOYEES, DELETE_EMPLOYEE } from './lib/queries.js';
   
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import * as Table from "$lib/components/ui/table";
     import { Button } from "$lib/components/ui/button";
+
+    import Toasts from "./Toasts.svelte";
+    import { addToast, decodeToken, decodedToken } from "./store";
     
     import "./app.css";
 
     let employees = [];
-    let newEmployee =  {
-        fname: '',
-        lname: '',
-        mname: '',
-        bdate: '',
-        gender: '',
-        cstatus: '',
-        position: '',
-        datehired: '',
-        tenure: ''
-    };
+    let userRole = '';
 
     async function fetchEmployees() {
         const data = await client.request(GET_EMPLOYEES);
         employees = data.employees;
     }
-  
-    async function addEmployee() {
-        newEmployee = {
-            fname: 'Harry',
-            lname: 'Potter',
-            mname: 'James',
-            bdate: '1990-01-01',
-            gender: 'M',
-            cstatus: 'S',
-            position: 'Developer',
-            datehired: '2024-01-01',
-            tenure: '6m'
-        };
-        await client.request(CREATE_EMPLOYEE, newEmployee);
 
-        newEmployee = {
-            fname: '',
-            lname: '',
-            mname: '',
-            bdate: '',
-            gender: '',
-            cstatus: '',
-            position: '',
-            datehired: '',
-            tenure: ''
-        };
-
-        fetchEmployees();
-    }
-    
     async function deleteEmployee(id) {
         await client.request(DELETE_EMPLOYEE, { id });
         fetchEmployees();
     }
 
-    fetchEmployees();
+    async function handleLogout() {
+        try {
+            localStorage.removeItem('LM_AUTH_TOKEN');
+
+            addToast({ message: "You have successfully logged out", type: "success", dismissible: true, timeout: 2000 });
+            navigate('/');
+        } catch (err) {
+            addToast({ message: "Invalid credentials", type: "error", dismissible: true, timeout: 2000 });
+        }
+    }
+
+    onMount(async () => {
+        let auth_token = localStorage.getItem('LM_AUTH_TOKEN');
+
+        if (!auth_token) {
+            navigate("/");
+        } else {
+            decodeToken(auth_token);
+            if (decodedToken) {
+                userRole = decodedToken.role;
+            }
+
+            fetchEmployees();
+        }
+    });
 </script>
+
+<Toasts />
 
 <main>
     <div class="container py-5">
         <div class="flex flex-col items-start">
-            <h1 class="text-3xl text-emerald-700">Svelte Demo</h1>
+            <div class="flex flex-row w-full justify-between">
+                <div class="flex">
+                    <h1 class="text-3xl text-emerald-700">Svelte Demo</h1>
+                </div>
+                <div class="flex">
+                    <Button variant="destructive" on:click={handleLogout}>Log Out</Button>
+                </div>
+            </div>
         </div>
         <div class="flex flex-col mt-10 gap-5">
             <div class="flex flex-row justify-between">
@@ -75,7 +74,9 @@
                     <h3 class="text-xl">Employee List</h3>
                 </div>
                 <div class="flex flex-row items-center justify-end">
-                    <Button on:click={addEmployee}>Add</Button>
+                    {#if userRole === 'A'}
+                        <Link to="/employee"><Button>Add</Button></Link>
+                    {/if}
                 </div>
             </div>
             <div>
@@ -101,27 +102,33 @@
                                 <Table.Cell>
                                     <div class="flex flex-row gap-2">
                                         <div>
-                                            <Link to="/employee/{employee.id}"><Button variant="outline">Edit</Button></Link>
+                                            {#if userRole === 'A'}
+                                                <Link to="/employee/{employee.id}"><Button variant="outline">Edit</Button></Link>
+                                            {:else}
+                                                <Link to="/employee/{employee.id}"><Button variant="outline">View</Button></Link>
+                                            {/if}
                                         </div>
-                                        <div>
-                                            <AlertDialog.Root>
-                                                <AlertDialog.Trigger asChild let:builder>
-                                                    <Button builders={[builder]} variant="outline">Delete</Button>
-                                                </AlertDialog.Trigger>
-                                                <AlertDialog.Content>
-                                                    <AlertDialog.Header>
-                                                        <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
-                                                        <AlertDialog.Description>
-                                                        This action cannot be undone. This will permanently delete the selected employee record.
-                                                        </AlertDialog.Description>
-                                                    </AlertDialog.Header>
-                                                    <AlertDialog.Footer>
-                                                        <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                                                        <AlertDialog.Action variant="ghost" on:click={() => deleteEmployee(employee.id)}>Confirm</AlertDialog.Action>
-                                                    </AlertDialog.Footer>
-                                                </AlertDialog.Content>
-                                            </AlertDialog.Root>
-                                        </div>
+                                        {#if userRole === 'A'}
+                                            <div>
+                                                <AlertDialog.Root>
+                                                    <AlertDialog.Trigger asChild let:builder>
+                                                        <Button builders={[builder]} variant="outline">Delete</Button>
+                                                    </AlertDialog.Trigger>
+                                                    <AlertDialog.Content>
+                                                        <AlertDialog.Header>
+                                                            <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+                                                            <AlertDialog.Description>
+                                                            This action cannot be undone. This will permanently delete the selected employee record.
+                                                            </AlertDialog.Description>
+                                                        </AlertDialog.Header>
+                                                        <AlertDialog.Footer>
+                                                            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                                                            <AlertDialog.Action variant="ghost" on:click={() => deleteEmployee(employee.id)}>Confirm</AlertDialog.Action>
+                                                        </AlertDialog.Footer>
+                                                    </AlertDialog.Content>
+                                                </AlertDialog.Root>
+                                            </div>
+                                        {/if}
                                     </div>
                                 </Table.Cell>
                             </Table.Row>

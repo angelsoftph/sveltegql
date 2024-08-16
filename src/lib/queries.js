@@ -24,14 +24,13 @@ export const GET_EMPLOYEE = `
             cstatus
             position
             datehired
-            tenure
         }
     }
 `;
 
 export const CREATE_EMPLOYEE = `
-    mutation CreateEmployee($fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!, $tenure: String!) {
-        createEmployee(fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired, tenure: $tenure) {
+    mutation CreateEmployee($fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!) {
+        createEmployee(fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired) {
             id
             fname
             lname
@@ -41,14 +40,13 @@ export const CREATE_EMPLOYEE = `
             cstatus
             position
             datehired
-            tenure
         }
     }
 `;
 
 export const UPDATE_EMPLOYEE = `
-    mutation UpdateEmployee($id: ID!, $fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!, $tenure: String!) {
-        updateEmployee(id: $id, fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired, tenure: $tenure) {
+    mutation UpdateEmployee($id: ID!, $fname: String!, $lname: String!, $mname: String!, $bdate: String!, $gender: String!, $cstatus: String!, $position: String!, $datehired: String!) {
+        updateEmployee(id: $id, fname: $fname, lname: $lname, mname: $mname, bdate: $bdate, gender: $gender, cstatus: $cstatus, position: $position, datehired: $datehired) {
             id
             fname
             lname
@@ -58,7 +56,6 @@ export const UPDATE_EMPLOYEE = `
             cstatus
             position
             datehired
-            tenure
         }
     }
 `;
@@ -85,17 +82,6 @@ export const CREATE_ADDRESS = `
         createAddress(employee_id: $employee_id, street: $street, city: $city, is_primary: $is_primary) {
             id
             employee_id
-            street
-            city
-            is_primary
-        }
-    }
-`;
-
-export const UPDATE_ADDRESS = `
-    mutation UpdateAddress($id: ID!, $street: String!, $city: String!, $is_primary: Int!) {
-        updateEmployee(id: $id, street: $street , city: $city, is_primary: $is_primary) {
-            id
             street
             city
             is_primary
@@ -138,16 +124,6 @@ export const CREATE_CONTACT = `
         createContact(employee_id: $employee_id, contact: $contact, is_primary: $is_primary) {
             id
             employee_id
-            contact
-            is_primary
-        }
-    }
-`;
-
-export const UPDATE_CONTACT = `
-    mutation UpdateContact($id: ID!, $contact: String!, $is_primary: Int!) {
-        updateEmployee(id: $id, contact: $contact, is_primary: $is_primary) {
-            id
             contact
             is_primary
         }
