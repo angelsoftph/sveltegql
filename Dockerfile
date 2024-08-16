@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # Expose port 5000 (change this if your Svelte app runs on a different port)
-EXPOSE 5000
+EXPOSE 5173
 
 # Command to run the app
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "dev"]
