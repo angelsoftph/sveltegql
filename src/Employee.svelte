@@ -422,253 +422,255 @@
                 </div>
                 <hr class="mt-2 mb-5" />
                 <div class="flex flex-row gap-5">
-                    <div class="flex flex-row w-1/3">
-                        <div class="flex flex-col gap-2">
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">First Name</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <Input name="first_name" bind:value={fname} />
-                                    {:else}
-                                        <Input name="first_name" bind:value={fname} readonly />
-                                    {/if}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-10">
+                        <div class="col-span-1">
+                            <div class="flex flex-col gap-2">
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">First Name</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <Input name="first_name" bind:value={fname} />
+                                        {:else}
+                                            <Input name="first_name" bind:value={fname} readonly />
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Last Name</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <Input name="last_name" bind:value={lname} />
-                                    {:else}
-                                        <Input name="last_name" bind:value={lname} readonly />
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Last Name</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <Input name="last_name" bind:value={lname} />
+                                        {:else}
+                                            <Input name="last_name" bind:value={lname} readonly />
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Middle Name</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <Input name="middle_name" bind:value={mname} />
-                                    {:else}
-                                        <Input name="middle_name" bind:value={mname} readonly />
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Middle Name</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <Input name="middle_name" bind:value={mname} />
+                                        {:else}
+                                            <Input name="middle_name" bind:value={mname} readonly />
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Birth Date</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <input class="datepicker" name="birth_date" use:datePicker={defaultOptionsBirthDate} bind:value={bdate} />
-                                    {:else}
-                                        <Input name="birth_date" bind:value={bdate} placeholder="yyyy-mm-dd" readonly />
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Birth Date</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <input class="datepicker" name="birth_date" use:datePicker={defaultOptionsBirthDate} bind:value={bdate} />
+                                        {:else}
+                                            <Input name="birth_date" bind:value={bdate} placeholder="yyyy-mm-dd" readonly />
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Gender</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <Select.Root portal={null} bind:selected={selectedGender}>
-                                            <Select.Trigger class="w-[216px]">
-                                                <Select.Value />
-                                            </Select.Trigger>
-                                            <Select.Content>
-                                                <Select.Group>
-                                                    {#each genderOptions as option}
-                                                        <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
-                                                    {/each}
-                                                </Select.Group>
-                                            </Select.Content>
-                                        </Select.Root>
-                                    {:else}
-                                        <Select.Root portal={null} bind:selected={selectedGender} disabled>
-                                            <Select.Trigger class="w-[216px]">
-                                                <Select.Value />
-                                            </Select.Trigger>
-                                            <Select.Content>
-                                                <Select.Group>
-                                                    {#each genderOptions as option}
-                                                        <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
-                                                    {/each}
-                                                </Select.Group>
-                                            </Select.Content>
-                                        </Select.Root>
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Gender</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <Select.Root portal={null} bind:selected={selectedGender}>
+                                                <Select.Trigger class="w-[216px]">
+                                                    <Select.Value />
+                                                </Select.Trigger>
+                                                <Select.Content>
+                                                    <Select.Group>
+                                                        {#each genderOptions as option}
+                                                            <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                        {/each}
+                                                    </Select.Group>
+                                                </Select.Content>
+                                            </Select.Root>
+                                        {:else}
+                                            <Select.Root portal={null} bind:selected={selectedGender} disabled>
+                                                <Select.Trigger class="w-[216px]">
+                                                    <Select.Value />
+                                                </Select.Trigger>
+                                                <Select.Content>
+                                                    <Select.Group>
+                                                        {#each genderOptions as option}
+                                                            <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                        {/each}
+                                                    </Select.Group>
+                                                </Select.Content>
+                                            </Select.Root>
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Marital Status</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <Select.Root portal={null} bind:selected={selectedStatus}>
-                                            <Select.Trigger class="w-[216px]">
-                                                <Select.Value />
-                                            </Select.Trigger>
-                                            <Select.Content>
-                                                <Select.Group>
-                                                    {#each statusOptions as option}
-                                                        <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
-                                                    {/each}
-                                                </Select.Group>
-                                            </Select.Content>
-                                        </Select.Root>
-                                    {:else}
-                                        <Select.Root portal={null} bind:selected={selectedStatus} disabled>
-                                            <Select.Trigger class="w-[216px]">
-                                                <Select.Value />
-                                            </Select.Trigger>
-                                            <Select.Content>
-                                                <Select.Group>
-                                                    {#each statusOptions as option}
-                                                        <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
-                                                    {/each}
-                                                </Select.Group>
-                                            </Select.Content>
-                                        </Select.Root>
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Marital Status</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <Select.Root portal={null} bind:selected={selectedStatus}>
+                                                <Select.Trigger class="w-[216px]">
+                                                    <Select.Value />
+                                                </Select.Trigger>
+                                                <Select.Content>
+                                                    <Select.Group>
+                                                        {#each statusOptions as option}
+                                                            <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                        {/each}
+                                                    </Select.Group>
+                                                </Select.Content>
+                                            </Select.Root>
+                                        {:else}
+                                            <Select.Root portal={null} bind:selected={selectedStatus} disabled>
+                                                <Select.Trigger class="w-[216px]">
+                                                    <Select.Value />
+                                                </Select.Trigger>
+                                                <Select.Content>
+                                                    <Select.Group>
+                                                        {#each statusOptions as option}
+                                                            <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
+                                                        {/each}
+                                                    </Select.Group>
+                                                </Select.Content>
+                                            </Select.Root>
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Position</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <Input name="position" bind:value={position} />
-                                    {:else}
-                                        <Input name="position" bind:value={position} readonly />
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Position</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <Input name="position" bind:value={position} />
+                                        {:else}
+                                            <Input name="position" bind:value={position} readonly />
+                                        {/if}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-row items-center gap-3">
-                                <div class="w-1/3">Date Hired</div>
-                                <div class="w-2/3">
-                                    {#if userRole === 'A'}
-                                        <input class="datepicker" name="date_hired" use:datePicker={defaultOptionsDateHired} bind:value={datehired} />
-                                    {:else}
-                                        <Input name="date_hired" bind:value={datehired} readonly />
-                                    {/if}
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="w-1/3">Date Hired</div>
+                                    <div class="w-2/3">
+                                        {#if userRole === 'A'}
+                                            <input class="datepicker" name="date_hired" use:datePicker={defaultOptionsDateHired} bind:value={datehired} />
+                                        {:else}
+                                            <Input name="date_hired" bind:value={datehired} readonly />
+                                        {/if}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="flex flex-col w-2/3 gap-10">
-                        <div class="flex flex-col">
-                            <div class="flex flex-row items-center justify-between">
-                                <div><h4>Contact Info</h4></div>
-                                <div>
-                                    {#if userRole === 'A'}
-                                        <Button variant="ghost" id="btn-add-contact" title="Add contact" on:click={handleNewContact}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button>
-                                    {/if}
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <hr />
-                            </div>
-                            <div class="flex flex-col mt-3 gap-2">
-                                <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]">Number</div>
-                                    {#if id}
-                                        <div>Primary?</div>
-                                    {/if}
-                                </div>
-                                {#each contacts as contact}
-                                    <div class="flex flex-row items-center gap-3">
-                                        <div class="w-[200px]">
-                                            <Input name="contact" value={contact.contact} readonly={true} />
-                                        </div>
-                                        <div class="w-[30px]">
-                                            {#if userRole === 'A'}
-                                                <input
-                                                    type="checkbox"
-                                                    name="primary_contact"
-                                                    checked={contact.is_primary}
-                                                    value={contact.id}
-                                                    on:click={() => setPrimaryContact(contact.id)}
-                                                />
-                                            {:else}
-                                                <input
-                                                    disabled
-                                                    type="checkbox"
-                                                    name="primary_contact"
-                                                    checked={contact.is_primary}
-                                                    value={contact.id}
-                                                />
-                                            {/if}
-                                        </div>
+                        <div class="col-span-1 lg:col-span-2">
+                            <div class="flex flex-col mb-10">
+                                <div class="flex flex-row items-center justify-between">
+                                    <div><h4>Contact Info</h4></div>
+                                    <div>
                                         {#if userRole === 'A'}
-                                            <div class="delete-contact" title="Delete Contact">
-                                                <Button variant="ghost" on:click={() => deleteContact(contact.id)}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-                                                </Button>
-                                            </div>
+                                            <Button variant="ghost" id="btn-add-contact" title="Add contact" on:click={handleNewContact}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button>
                                         {/if}
                                     </div>
-                                {/each}
-                                {#if showNewContactForm}
-                                    <div class="flex flex-row items-center gap-3">
-                                        <div class="w-[200px]"><Input name="contact" bind:value={newContact.contact} /></div>
-                                    </div>
-                                {/if}
-                            </div>
-                        </div>
-                        <div class="flex flex-col">
-                            <div class="flex flex-row items-center justify-between">
-                                <div><h4>Address Info</h4></div>
-                                <div>
-                                    {#if userRole === 'A'}
-                                        <Button variant="ghost" id="btn-add-address" title="Add address" on:click={handleNewAddress}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button>
-                                    {/if}
                                 </div>
-                            </div>
-                            <div class="mt-3">
-                                <hr />
-                            </div>
-                            <div class="flex flex-col mt-3 gap-2">
-                                <div class="flex flex-row items-center gap-3">
-                                    <div class="w-[200px]">Street</div>
-                                    <div class="w-[200px]">City</div>
-                                    {#if id}
-                                        <div>Primary?</div>
-                                    {/if}
+                                <div class="mt-3">
+                                    <hr />
                                 </div>
-                                {#each addresses as address}
+                                <div class="flex flex-col mt-3 gap-2">
                                     <div class="flex flex-row items-center gap-3">
-                                        <div class="w-[200px]"><Input name="street" value={address.street} readonly={true} /></div>
-                                        <div class="w-[200px]"><Input name="city" value={address.city} readonly={true} /></div>
-                                        <div class="w-[30px]">
-                                            {#if userRole === 'A'}
-                                                <input
-                                                    type="checkbox"
-                                                    name="primary_address"
-                                                    checked={address.is_primary}
-                                                    value={address.id}
-                                                    on:click={() => setPrimaryAddress(address.id)}
-                                                />
-                                            {:else}
-                                                <input
-                                                    disabled
-                                                    type="checkbox"
-                                                    name="primary_address"
-                                                    checked={address.is_primary}
-                                                    value={address.id}
-                                                    on:click={() => setPrimaryAddress(address.id)}
-                                                />
-                                            {/if}
-                                        </div>
-                                        {#if userRole === 'A'}
-                                            <div class="delete-address" title="Delete Address">
-                                                <Button variant="ghost" on:click={() => deleteAddress(address.id)}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-                                                </Button>
-                                            </div>
+                                        <div class="w-[200px]">Number</div>
+                                        {#if id}
+                                            <div>Primary?</div>
                                         {/if}
                                     </div>
-                                {/each}
-                                {#if showNewAddressForm}
-                                    <div class="flex flex-row items-center gap-3">
-                                        <div class="w-[200px]"><Input name="street" bind:value={newAddress.street} /></div>
-                                        <div class="w-[200px]"><Input name="city" bind:value={newAddress.city} /></div>
+                                    {#each contacts as contact}
+                                        <div class="flex flex-row items-center gap-3">
+                                            <div class="w-[200px]">
+                                                <Input name="contact" value={contact.contact} readonly={true} />
+                                            </div>
+                                            <div class="w-[30px]">
+                                                {#if userRole === 'A'}
+                                                    <input
+                                                        type="checkbox"
+                                                        name="primary_contact"
+                                                        checked={contact.is_primary}
+                                                        value={contact.id}
+                                                        on:click={() => setPrimaryContact(contact.id)}
+                                                    />
+                                                {:else}
+                                                    <input
+                                                        disabled
+                                                        type="checkbox"
+                                                        name="primary_contact"
+                                                        checked={contact.is_primary}
+                                                        value={contact.id}
+                                                    />
+                                                {/if}
+                                            </div>
+                                            {#if userRole === 'A'}
+                                                <div class="delete-contact" title="Delete Contact">
+                                                    <Button variant="ghost" on:click={() => deleteContact(contact.id)}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                                    </Button>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    {/each}
+                                    {#if showNewContactForm}
+                                        <div class="flex flex-row items-center gap-3">
+                                            <div class="w-[200px]"><Input name="contact" bind:value={newContact.contact} /></div>
+                                        </div>
+                                    {/if}
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex flex-row items-center justify-between">
+                                    <div><h4>Address Info</h4></div>
+                                    <div>
+                                        {#if userRole === 'A'}
+                                            <Button variant="ghost" id="btn-add-address" title="Add address" on:click={handleNewAddress}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></Button>
+                                        {/if}
                                     </div>
-                                {/if}
+                                </div>
+                                <div class="mt-3">
+                                    <hr />
+                                </div>
+                                <div class="flex flex-col mt-3 gap-2">
+                                    <div class="flex flex-row items-center gap-3">
+                                        <div class="w-[200px]">Street</div>
+                                        <div class="w-[200px]">City</div>
+                                        {#if id}
+                                            <div>Primary?</div>
+                                        {/if}
+                                    </div>
+                                    {#each addresses as address}
+                                        <div class="flex flex-row items-center gap-3">
+                                            <div class="w-[200px]"><Input name="street" value={address.street} readonly={true} /></div>
+                                            <div class="w-[200px]"><Input name="city" value={address.city} readonly={true} /></div>
+                                            <div class="w-[30px]">
+                                                {#if userRole === 'A'}
+                                                    <input
+                                                        type="checkbox"
+                                                        name="primary_address"
+                                                        checked={address.is_primary}
+                                                        value={address.id}
+                                                        on:click={() => setPrimaryAddress(address.id)}
+                                                    />
+                                                {:else}
+                                                    <input
+                                                        disabled
+                                                        type="checkbox"
+                                                        name="primary_address"
+                                                        checked={address.is_primary}
+                                                        value={address.id}
+                                                        on:click={() => setPrimaryAddress(address.id)}
+                                                    />
+                                                {/if}
+                                            </div>
+                                            {#if userRole === 'A'}
+                                                <div class="delete-address" title="Delete Address">
+                                                    <Button variant="ghost" on:click={() => deleteAddress(address.id)}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-x"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                                                    </Button>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    {/each}
+                                    {#if showNewAddressForm}
+                                        <div class="flex flex-row items-center gap-3">
+                                            <div class="w-[200px]"><Input name="street" bind:value={newAddress.street} /></div>
+                                            <div class="w-[200px]"><Input name="city" bind:value={newAddress.city} /></div>
+                                        </div>
+                                    {/if}
+                                </div>
                             </div>
                         </div>
                     </div>

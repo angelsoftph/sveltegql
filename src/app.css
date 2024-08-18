@@ -117,3 +117,17 @@ div, p {
   background: #dc2626 !important;
   border: 0 !important;
 }
+
+.table-wrapper {
+  margin: auto;
+  width: 100%;
+  overflow: auto;
+}
+
+@media only screen and (max-width: 760px) {
+  .table-wrapper {
+    margin: auto;
+    width: 100%;
+    overflow: auto;
+  }
+}

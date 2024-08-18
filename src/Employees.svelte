@@ -84,7 +84,7 @@
                     {/if}
                 </div>
             </div>
-            <div>
+            <div class="table-wrapper">
                 <Table.Root>
                     <Table.Header>
                         <Table.Row>
@@ -99,7 +99,7 @@
                     <Table.Body>
                         {#each employees as employee}
                             <Table.Row>
-                                <Table.Cell class="font-medium">{employee.fname} {employee.lname}</Table.Cell>
+                                <Table.Cell class="font-medium"><Link to="/employee/{employee.id}">{employee.fname} {employee.lname}</Link></Table.Cell>
                                 <Table.Cell>{employee.street !== null ? employee.street : ''} {employee.city !== null ? employee.city : ''}</Table.Cell>
                                 <Table.Cell>{employee.contact !== null ? employee.contact: ''}</Table.Cell>
                                 <Table.Cell class="text-right">{employee.age}</Table.Cell>
