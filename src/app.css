@@ -103,3 +103,17 @@ div, p {
 .delete-address, .delete-contact {
   cursor: pointer;
 }
+
+.datepicker {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+}
+
+.flatpickr-day.selected {
+  background: #dc2626 !important;
+  border: 0 !important;
+}

@@ -37,3 +37,4 @@ export function decodeToken(token) {
 
     return;
 }
+
